@@ -38,14 +38,20 @@ let users: User[] = [
 
 app.get("/users", (req: Request, res: Response) => {
   const sort = req.query.sort;
-  let results = [...users];
+  const page = parseInt(req.query.page as string) || 1;
+  const pageSize = parseInt(req.query.pageSize as string) || 5;
+
+  let result = [...users];
   if (sort === "asc") {
-    results.sort((a, b) => a.age - b.age);
+    result.sort((a, b) => a.age - b.age);
   }
   if (sort === "desc") {
-    results.sort((a, b) => b.age - a.age);
+    result.sort((a, b) => b.age - a.age);
   }
-  return res.json(results);
+
+  const startIndex = (page - 1) * pageSize;
+  const paged = result.slice(startIndex, startIndex + pageSize);
+  return res.json({ users: paged, total: result.length, page, pageSize });
 });
 
 app.post("/users", (req: Request, res: Response) => {
