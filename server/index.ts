@@ -16,6 +16,24 @@ type User = {
 let users: User[] = [
   { id: 1, name: "Alice", age: 28 },
   { id: 2, name: "Bob", age: 35 },
+  { id: 3, name: "Charlie", age: 22 },
+  { id: 4, name: "David", age: 30 },
+  { id: 5, name: "Eva", age: 26 },
+  { id: 6, name: "Frank", age: 40 },
+  { id: 7, name: "Grace", age: 24 },
+  { id: 8, name: "Henry", age: 32 },
+  { id: 9, name: "Ivy", age: 29 },
+  { id: 10, name: "Jack", age: 38 },
+  { id: 11, name: "Karen", age: 27 },
+  { id: 12, name: "Leo", age: 31 },
+  { id: 13, name: "Mona", age: 23 },
+  { id: 14, name: "Nate", age: 33 },
+  { id: 15, name: "Olivia", age: 25 },
+  { id: 16, name: "Paul", age: 36 },
+  { id: 17, name: "Quinn", age: 33 },
+  { id: 18, name: "Rachel", age: 21 },
+  { id: 19, name: "Sam", age: 37 },
+  { id: 20, name: "Tina", age: 20 },
 ];
 
 app.get("/users", (req: Request, res: Response) => {
