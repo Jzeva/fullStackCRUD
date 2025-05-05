@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 const API = "http://localhost:8080/users";
 type User = {
-  id: number;
+  id: string;
   name: string;
   age: string;
 };
@@ -12,22 +12,36 @@ function App() {
   const [users, setUsers] = useState<User[]>([]);
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
-  const [editingId, setEditingId] = useState<number | null>(null);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editAge, setEditAge] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const pageSize = 5;
+
   const startEdit = (user: User) => {
     setEditingId(user.id); // 标记哪一行在编辑
     setEditName(user.name); // 将原值加载到表单中
     setEditAge(user.age); // 同上
   };
 
-  const fetchUsers = async (sort = "") => {
+  const fetchUsers = async (
+    sort: "asc" | "desc" | null,
+    currentPage: number
+  ) => {
     const response = await axios.get(API, {
-      params: sort ? { sort } : {},
+      params: {
+        sort,
+        page: page,
+        pageSize,
+      },
     });
-    const users = response.data;
+    const users = response.data.users;
+    const total = response.data.total;
     setUsers(users);
+    setTotal(total);
+    setPage(currentPage);
   };
 
   const handleAdd = async () => {
@@ -37,35 +51,43 @@ function App() {
     });
     setAge("");
     setName("");
-    fetchUsers();
+    fetchUsers(sortOrder, page);
   };
 
-  const handleSave = async (id: number) => {
+  const handleSave = async (id: string) => {
     await axios.patch(`${API}/${id}`, {
       name: editName,
       age: editAge,
     });
     setEditingId(null);
-    fetchUsers();
+    fetchUsers(sortOrder, page);
   };
 
   const cancelEdit = () => {
     setEditingId(null);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     await axios.delete(`${API}/${id}`);
-    fetchUsers();
+    fetchUsers(sortOrder, 1);
+  };
+
+  const handlePrev = () => {
+    if (page > 1) fetchUsers(sortOrder, page - 1);
+  };
+
+  const handleNext = () => {
+    if (page * pageSize < total) fetchUsers(sortOrder, page + 1);
   };
 
   useEffect(() => {
-    fetchUsers(sortOrder);
+    fetchUsers(sortOrder, page);
   }, [sortOrder]);
 
   const toggleSort = () => {
     const finalSort = sortOrder === "asc" ? "desc" : "asc";
     setSortOrder(finalSort);
-    fetchUsers(finalSort);
+    fetchUsers(finalSort, 1);
   };
 
   return (
@@ -101,6 +123,17 @@ function App() {
           </li>
         ))}
       </ul>
+      <div>
+        <button onClick={handlePrev} disabled={page === 1}>
+          Prev
+        </button>
+        <span style={{ margin: "0 10px" }}>
+          Page {page} of {Math.ceil(total / pageSize)}
+        </span>
+        <button onClick={handleNext} disabled={page * pageSize >= total}>
+          Next
+        </button>
+      </div>
       <input
         placeholder="name"
         name="name"
